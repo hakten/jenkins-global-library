@@ -111,7 +111,14 @@ def runPipeline() {
 
 
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: "nexus-docker-creds", usernameVariable: 'docker_username', passwordVariable: 'docker_password']]) {
-              sh "docker login --username ${env.docker_username} --password ${env.docker_password} https://docker.fuchicorp.com"
+              sh """#!/bin/bash -e
+
+              until docker login --username ${env.docker_username} --password ${env.docker_password} https://docker.fuchicorp.com
+              do
+                echo "Trying to login to docker private system"
+                sleep 3
+              done
+              """
             }
 
 
@@ -124,7 +131,18 @@ def runPipeline() {
                     dockerImage.push("latest")
                 }
               }
+
+
            }
+
+           stage("Clean up")
+
+           sh "docker rmi --no-prune docker.fuchicorp.com/${repositoryName}-${environment}:0.${BUILD_NUMBER}"
+
+           if (params.PUSH_LATEST) {
+             sh "docker rmi --no-prune docker.fuchicorp.com/${repositoryName}-${environment}:latest"
+           }
+
          }
       }
     }
