@@ -41,8 +41,8 @@ def runPipeline() {
       choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName), description: 'Please select docker image to deploy!'),
       text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration'),
       gitParameter(branch: '', branchFilter: '.*', defaultValue: 'origin/master', description: 'Please select your deployment',
-      choice(choices: ['dev,qa,prod'], description: 'Please select the environment.', name: 'environment'), 
-      name: 'releaseName', quickFilterEnabled: false, selectedValue: 'NONE', sortMode: 'NONE', tagFilter: '*', type: 'PT_BRANCH_TAG', useRepository: "${repoUrl}")
+      choice(choices: ['dev,qa,prod'], description: 'Please select the environment.', name: 'environment')
+      // name: 'releaseName', quickFilterEnabled: false, selectedValue: 'NONE', sortMode: 'NONE', tagFilter: '*', type: 'PT_BRANCH_TAG', useRepository: "${repoUrl}")
       ]
       )])
 
