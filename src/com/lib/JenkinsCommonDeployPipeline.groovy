@@ -39,7 +39,6 @@ def runPipeline() {
       // This hard coded params should be configured inside code
       booleanParam(defaultValue: false, description: 'Apply All Changes', name: 'terraform_apply'),
       booleanParam(defaultValue: false, description: 'Destroy deployment', name: 'terraform_destroy'),
-      choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName), description: 'Please select docker image to deploy!'),
       choice(choices: ['dev','qa','prod'], description: 'Please select the environment.', name: 'environment'),
       text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration'),
       extendedChoice(bindings: '', description: 'Please select the docker image to deploy ', groovyClasspath: '', groovyScript: "${findDockerImageScript}", multiSelectDelimiter: ',', name: 'selectedDockerImage', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_SINGLE_SELECT', visibleItemCount: 5)
