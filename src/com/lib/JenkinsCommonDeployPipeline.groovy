@@ -39,8 +39,10 @@ def runPipeline() {
       booleanParam(defaultValue: false, description: 'Apply All Changes', name: 'terraform_apply'),
       booleanParam(defaultValue: false, description: 'Destroy deployment', name: 'terraform_destroy'),
       choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName), description: 'Please select docker image to deploy!'),
+      choice(choices: ['dev','qa','prod'], description: 'Please select the environment.', name: 'environment'),
       text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration'),
-      choice(choices: ['dev','qa','prod'], description: 'Please select the environment.', name: 'environment')
+      [gitParameter(branch: '', branchFilter: '.*', defaultValue: 'origin/master', description: 'Please provide release name to deploy ', 
+      name: 'RELEASE', quickFilterEnabled: false, selectedValue: 'NONE', sortMode: 'NONE', tagFilter: '*', type: 'PT_BRANCH_TAG', useRepository: "${repoUrl}")
       ])])
 
 
