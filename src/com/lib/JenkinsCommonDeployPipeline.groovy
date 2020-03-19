@@ -6,8 +6,10 @@ import hudson.FilePath
 
 def runPipeline() {
   def common_docker = new JenkinsDeployerPipeline()
-  def environment = ""
+  // def environment = ""
   def branch = "${scm.branches[0].name}".replaceAll(/^\*\//, '').replace("/", "-").toLowerCase()
+  def repoUrl = "${scm.getUserRemoteConfigs()[0].getUrl()}"
+
   def k8slabel = "jenkins-pipeline-${UUID.randomUUID().toString()}"
   def deploymentName = "${JOB_NAME}"
                         .split('/')[0]
@@ -16,35 +18,34 @@ def runPipeline() {
                         .replace('-deploy', '')
 
   switch(branch) {
-    case 'master': environment = 'prod'
+    case 'master': 
     break
 
-    case 'qa': environment = 'qa'
+    case 'qa': 
     break
 
-    case 'dev': environment = 'dev'
-    break
+    case 'dev':
 
-    case 'tools': environment = 'tools'
+    case 'tools':
     break
 
     default:
         currentBuild.result = 'FAILURE'
         print('This branch does not supported')
   }
-
-  println("Branch: ${branch}")
-  println("Environment: ${environment}")
-
   try {
     properties([ parameters([
       // This hard coded params should be configured inside code
       booleanParam(defaultValue: false, description: 'Apply All Changes', name: 'terraform_apply'),
       booleanParam(defaultValue: false, description: 'Destroy deployment', name: 'terraform_destroy'),
-      choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName + '-' + environment), description: 'Please select docker image to deploy!'),
-      text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration')
+      choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName), description: 'Please select docker image to deploy!'),
+      text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration'),
+      gitParameter(branch: '', branchFilter: '.*', defaultValue: 'origin/master', description: 'Please select your deployment',
+      choice(choices: ['dev,qa,prod'], description: 'Please select the environment.', name: 'environment'), 
+      name: 'releaseName', quickFilterEnabled: false, selectedValue: 'NONE', sortMode: 'NONE', tagFilter: '*', type: 'PT_BRANCH_TAG', useRepository: "${repoUrl}")
       ]
       )])
+
 
       // Pod slave for Jenkins so Jenkins master can run the job on slaves
       def slavePodTemplate = """
@@ -105,7 +106,11 @@ def runPipeline() {
         container('fuchicorptools') {
 
           stage("Polling SCM") {
-            checkout scm
+
+            checkout scm: [$class: 'GitSCM', userRemoteConfigs: [[url: "${repoUrl}"]], 
+            branches: [[name: "${releaseName}"]]], 
+            poll: false
+
           }
 
           stage('Generate Configurations') {
