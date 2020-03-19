@@ -6,6 +6,7 @@ import hudson.FilePath
 
 def runPipeline() {
   def common_docker = new JenkinsDeployerPipeline()
+  def findDockerImageScript = new DockerImageFind()
   // def environment = ""
   def branch = "${scm.branches[0].name}".replaceAll(/^\*\//, '').replace("/", "-").toLowerCase()
   def repoUrl = "${scm.getUserRemoteConfigs()[0].getUrl()}"
@@ -41,40 +42,7 @@ def runPipeline() {
       choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName), description: 'Please select docker image to deploy!'),
       choice(choices: ['dev','qa','prod'], description: 'Please select the environment.', name: 'environment'),
       text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration'),
-      extendedChoice(bindings: '', description: 'Please select the docker image to deploy ', groovyClasspath: '', groovyScript: '''import groovy.json.JsonSlurper
-def findDockerImages(branchName) {
-  def versionList = []
-  def token       = ""
-  def myJsonreader = new JsonSlurper()
-  def nexusData = myJsonreader.parse(new URL("https://nexus.fuchicorp.com/service/rest/v1/components?repository=fuchicorp"))
-  nexusData.items.each {
-    if (it.name.contains(branchName)) {
-       versionList.add(it.name + \':\' + it.version)
-     }
-    }
-  while (true) {
-    if (nexusData.continuationToken) {
-      token = nexusData.continuationToken
-      nexusData = myJsonreader.parse(new URL("https://nexus.fuchicorp.com/service/rest/v1/components?repository=fuchicorp&continuationToken=${token}"))
-      nexusData.items.each {
-        if (it.name.contains(branchName)) {
-           versionList.add(it.name + \':\' + it.version)
-         }
-        }
-    }
-    if (nexusData.continuationToken == null ){
-      break
-    }
-
-  }
-  if(!versionList) {
-    versionList.add(\'ImmageNotFound\')
-  }
-
-  return versionList.sort()
-}
-
-findDockerImages(\'dev\')''', multiSelectDelimiter: ',', name: 'selectedDockerImage', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_SINGLE_SELECT', visibleItemCount: 5)
+      extendedChoice(bindings: '', description: 'Please select the docker image to deploy ', groovyClasspath: '', groovyScript: "${findDockerImageScript}", multiSelectDelimiter: ',', name: 'selectedDockerImage', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_SINGLE_SELECT', visibleItemCount: 5)
 
 
       ])])
