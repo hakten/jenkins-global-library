@@ -41,8 +41,42 @@ def runPipeline() {
       choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName), description: 'Please select docker image to deploy!'),
       choice(choices: ['dev','qa','prod'], description: 'Please select the environment.', name: 'environment'),
       text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration'),
-      gitParameter(branch: '', branchFilter: '.*', defaultValue: 'origin/master', description: 'Please provide release name to deploy ', 
-      name: 'RELEASE', quickFilterEnabled: false, selectedValue: 'NONE', sortMode: 'NONE', tagFilter: '*', type: 'PT_BRANCH_TAG', useRepository: "${repoUrl}")
+      extendedChoice(bindings: '', description: 'Please select the docker image to deploy ', groovyClasspath: '', groovyScript: '''import groovy.json.JsonSlurper
+def findDockerImages(branchName) {
+  def versionList = []
+  def token       = ""
+  def myJsonreader = new JsonSlurper()
+  def nexusData = myJsonreader.parse(new URL("https://nexus.fuchicorp.com/service/rest/v1/components?repository=fuchicorp"))
+  nexusData.items.each {
+    if (it.name.contains(branchName)) {
+       versionList.add(it.name + \':\' + it.version)
+     }
+    }
+  while (true) {
+    if (nexusData.continuationToken) {
+      token = nexusData.continuationToken
+      nexusData = myJsonreader.parse(new URL("https://nexus.fuchicorp.com/service/rest/v1/components?repository=fuchicorp&continuationToken=${token}"))
+      nexusData.items.each {
+        if (it.name.contains(branchName)) {
+           versionList.add(it.name + \':\' + it.version)
+         }
+        }
+    }
+    if (nexusData.continuationToken == null ){
+      break
+    }
+
+  }
+  if(!versionList) {
+    versionList.add(\'ImmageNotFound\')
+  }
+
+  return versionList.sort()
+}
+
+findDockerImages(\'dev\')''', multiSelectDelimiter: ',', name: 'selectedDockerImage', quoteValue: false, saveJSONParameterToFile: false, type: 'PT_SINGLE_SELECT', visibleItemCount: 5)
+
+
       ])])
 
 
