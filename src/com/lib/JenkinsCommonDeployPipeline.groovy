@@ -40,10 +40,8 @@ def runPipeline() {
       booleanParam(defaultValue: false, description: 'Destroy deployment', name: 'terraform_destroy'),
       choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName), description: 'Please select docker image to deploy!'),
       text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration'),
-      gitParameter(branch: '', branchFilter: '.*', defaultValue: 'origin/master', description: 'Please select your deployment'),
       choice(choices: ['dev,qa,prod'], description: 'Please select the environment.', name: 'environment')
-      ]
-      )])
+      ])])
 
 
       // Pod slave for Jenkins so Jenkins master can run the job on slaves
