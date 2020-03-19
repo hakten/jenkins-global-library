@@ -40,7 +40,7 @@ def runPipeline() {
       booleanParam(defaultValue: false, description: 'Destroy deployment', name: 'terraform_destroy'),
       choice(name: 'selectedDockerImage', choices: common_docker.findDockerImages(deploymentName), description: 'Please select docker image to deploy!'),
       text(name: 'deployment_tfvars', defaultValue: 'extra_values = "tools"', description: 'terraform configuration'),
-      choice(choices: ['dev,qa,prod'], description: 'Please select the environment.', name: 'environment')
+      choice(choices: ['dev','qa','prod'], description: 'Please select the environment.', name: 'environment')
       ])])
 
 
@@ -92,7 +92,7 @@ def runPipeline() {
         volumes:
           - name: google-service-account
             secret:
-              secretName: fuchicorp-service-account
+              secretName: google-service-account
           - name: docker-sock
             hostPath:
               path: /var/run/docker.sock
