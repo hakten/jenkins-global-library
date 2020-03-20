@@ -113,7 +113,7 @@ def runPipeline() {
             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: "nexus-docker-creds", usernameVariable: 'docker_username', passwordVariable: 'docker_password']]) {
               sh """#!/bin/bash -e
 
-              until docker login --username ${env.docker_username} --password ${env.docker_password} https://docker.fuchicorp.com
+              until docker login --username ${env.docker_username} --password ${env.docker_password} https://docker.mybestsea.com
               do
                 echo "Trying to login to docker private system"
                 sleep 3
@@ -123,7 +123,7 @@ def runPipeline() {
 
 
              // Push image to the Nexus with new release
-              docker.withRegistry('https://docker.fuchicorp.com', 'nexus-docker-creds') {
+              docker.withRegistry('https://docker.mybestsea.com', 'nexus-docker-creds') {
                   dockerImage.push("0.${BUILD_NUMBER}")
                   // messanger.sendMessage("slack", "SUCCESS", slackChannel)
 
@@ -137,10 +137,10 @@ def runPipeline() {
 
            stage("Clean up")
 
-           sh "docker rmi --no-prune docker.fuchicorp.com/${repositoryName}-${environment}:0.${BUILD_NUMBER}"
+           sh "docker rmi --no-prune docker.mybestsea.com/${repositoryName}-${environment}:0.${BUILD_NUMBER}"
 
            if (params.PUSH_LATEST) {
-             sh "docker rmi --no-prune docker.fuchicorp.com/${repositoryName}-${environment}:latest"
+             sh "docker rmi --no-prune docker.mybestsea.com/${repositoryName}-${environment}:latest"
            }
 
          }
