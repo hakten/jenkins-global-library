@@ -109,9 +109,10 @@ node {
               }
             }
           }  
-          if ( !params.LATEST ) {
-              if ( !params.VERSION) {
+          if ( params.LATEST ) {
+              if ( params.VERSION) {
                   sh "echo Please choose latest or enter a version number."
+                  currentBuild.result = 'FAILURE'
               }
             }
           } 
