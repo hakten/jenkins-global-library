@@ -1,4 +1,3 @@
-node {
 
   def k8slabel = "jenkins-pipeline-${UUID.randomUUID().toString()}"
   def repositoryName = "${JOB_NAME}"
@@ -81,7 +80,7 @@ node {
             userRemoteConfigs: [[url: 'https://github.com/fuchicorp/smart-profile.git']]])
           }
 
-          stage("building the image") {
+          stage("Building the image") {
             dir("${WORKSPACE}/deployments/docker") {
               dockerImage = docker.build(repositoryName)
             }
@@ -121,4 +120,4 @@ node {
       }
     }
   }
-}
+
