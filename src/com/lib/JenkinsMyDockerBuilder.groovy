@@ -85,7 +85,7 @@ node {
 
           stage("building the image") {
             dir("${WORKSPACE}/deployments/docker") {
-              myDockerImage = docker.build(repositoryName)
+              dockerImage = docker.build(repositoryName)
             }
           }
           stage("Push the Image") {
@@ -93,8 +93,8 @@ node {
             sh "docker login --username ${username} --password ${password} https://docker.gcp.huseyinakten.net"
            }
 
-            withDockerRegistry(credentialsId: 'nexus-docker-creds', url: 'htts://docker.gcp.huseyinakten.net') {
-              myDockerImage.push("0:2") 
+            withDockerRegistry('htts://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
+              dockerImage.push("0:2") 
               }
           }        
       }
