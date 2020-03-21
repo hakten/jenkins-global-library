@@ -8,12 +8,9 @@ node {
 
     properties([
       parameters([
-        booleanParam(defaultValue: false,
+        booleanParam(defaultValue: true,
           description: 'Click this if you would like to deploy to latest',
           name: 'LATEST'),
-        booleanParam(defaultValue: false,
-          description: 'Click this if you would like to deploy to stable',
-          name: 'STABLE'),
         string(defaultValue: '', 
             description: 'Please enter application version number.', 
             name: 'VERSION', trim: false)
@@ -95,15 +92,31 @@ node {
             sh "docker login --username ${username} --password ${password} https://docker.gcp.huseyinakten.net"
            }
 
-            docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
-            dockerImage.push("5")
+            // docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
+            // dockerImage.push("5")
 
-                //   if (params.PUSH_LATEST) {
-                //     dockerImage.push("latest")
-                // }
-              }      
+            if ( params.LATEST ) {
+                if ( !params.VERSION) {
+                        docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
+                        dockerImage.push("latest")
+              }
+            }
+          }    
+            if ( !params.LATEST ) {
+                if ( params.VERSION) {
+                        docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
+                        dockerImage.push("${VERSION}")
+              }
+            }
+          }  
+          if ( !params.LATEST ) {
+              if ( !params.VERSION) {
+                  sh "echo Please choose latest or enter a version number."
+              }
+            }
+          } 
+ 
       }
     }
   }
-}
 }
