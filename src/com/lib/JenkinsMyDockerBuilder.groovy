@@ -96,7 +96,7 @@ node {
            }
 
             docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
-            dockerImage.push("latest")
+            dockerImage.push("5")
 
                 //   if (params.PUSH_LATEST) {
                 //     dockerImage.push("latest")
