@@ -111,7 +111,8 @@ node {
           }  
           if ( params.LATEST ) {
               if ( params.VERSION) {
-                  sh "echo Please choose latest or enter a version number."
+                  sh "echo Please choose only one option 'latest' or enter a version number."
+                  currentStage.result = 'FAILURE'
                   currentBuild.result = 'FAILURE'
               }
             }
