@@ -75,12 +75,13 @@ node {
   podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate) {
       node(k8slabel) {
         container('fuchicorptools') {
+
+
           stage("Pulling the code") {
             sh "echo hello"
             checkout([$class: 'GitSCM', branches: [[name: '*/dev']], 
             doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], 
             userRemoteConfigs: [[url: 'https://github.com/fuchicorp/smart-profile.git']]])
-
           }
 
           stage("building the image") {
@@ -88,13 +89,14 @@ node {
               dockerImage = docker.build(repositoryName)
             }
           }
+
           stage("Push the Image") {
             withCredentials([usernamePassword(credentialsId: 'nexus-docker-creds', passwordVariable: 'password', usernameVariable: 'username')]) {
             sh "docker login --username ${username} --password ${password} https://docker.gcp.huseyinakten.net"
            }
 
-              docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
-                  dockerImage.push("latest")
+            docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
+            dockerImage.push("latest")
 
                 //   if (params.PUSH_LATEST) {
                 //     dockerImage.push("latest")
@@ -103,4 +105,5 @@ node {
       }
     }
   }
+}
 }
