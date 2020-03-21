@@ -93,10 +93,13 @@ node {
             sh "docker login --username ${username} --password ${password} https://docker.gcp.huseyinakten.net"
            }
 
-            withDockerRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
-              dockerImage.push("latest") 
-              }
-          }        
+              docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
+                  dockerImage.push("latest")
+
+                //   if (params.PUSH_LATEST) {
+                //     dockerImage.push("latest")
+                // }
+              }      
       }
     }
   }
