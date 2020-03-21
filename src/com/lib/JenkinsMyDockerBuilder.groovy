@@ -85,7 +85,7 @@ node {
 
           stage("building the image") {
             dir("${WORKSPACE}/deployments/docker") {
-              dockerImage = docker.build(repositoryName, . )
+              dockerImage = docker.build(repositoryName)
             }
           }
           stage("Push the Image") {
