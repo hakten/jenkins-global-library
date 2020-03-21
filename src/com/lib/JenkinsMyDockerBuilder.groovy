@@ -78,6 +78,8 @@ node {
           stage("Pulling the code") {
             sh "echo hello"
           }
-
+        }
+      }
+      }
 
 }
