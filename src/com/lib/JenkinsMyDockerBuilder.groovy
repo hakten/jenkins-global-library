@@ -77,9 +77,26 @@ node {
         container('fuchicorptools') {
           stage("Pulling the code") {
             sh "echo hello"
-          }
-        }
-      }
-      }
+            checkout([$class: 'GitSCM', branches: [[name: '*/dev']], 
+            doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], 
+            userRemoteConfigs: [[url: 'https://github.com/fuchicorp/smart-profile.git']]])
 
+          }
+
+          stage("building the image") {
+            dir("${WORKSPACE}/deployments/docker") {
+              dockerImage = docker.build(repositoryName + ':' + "${VERSION}" . )
+            }
+          }
+          stage("Push the Image") {
+            withCredentials([usernamePassword(credentialsId: 'nexus-docker-creds', passwordVariable: 'password', usernameVariable: 'username')]) {
+            sh "docker login --username ${username} --password ${password} https://nexus.gcp.huseyinakten.net"
+           }
+          }
+          
+          
+          
+      }
+    }
+  }
 }
