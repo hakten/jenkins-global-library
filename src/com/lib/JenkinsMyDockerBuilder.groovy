@@ -94,7 +94,7 @@ node {
            }
 
             withDockerRegistry(credentialsId: 'nexus-docker-creds', url: 'htts://docker.gcp.huseyinakten.net') {
-              myDockerImage.push() 
+              myDockerImage.push("0:2") 
               }
           }        
       }
