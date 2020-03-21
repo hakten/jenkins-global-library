@@ -93,7 +93,7 @@ node {
             sh "docker login --username ${username} --password ${password} https://docker.gcp.huseyinakten.net"
            }
 
-            withDockerRegistry(credentialsId: 'nexus-docker-creds', url: 'https://docker.gcp.huseyinakten.net') {
+            withDockerRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
               dockerImage.push("latest") 
               }
           }        
