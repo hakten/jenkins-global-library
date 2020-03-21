@@ -90,7 +90,7 @@ node {
           }
           stage("Push the Image") {
             withCredentials([usernamePassword(credentialsId: 'nexus-docker-creds', passwordVariable: 'password', usernameVariable: 'username')]) {
-            sh "docker login --username ${username} --password ${password} https://nexus.gcp.huseyinakten.net"
+            sh "docker login --username ${username} --password ${password} https://docker.gcp.huseyinakten.net"
            }
           }
           
