@@ -19,6 +19,25 @@
       .split('/')[0]
       .replace('-build', '-deploy')
 
+  if (branch.contains('dev-feature')) {
+    environment = 'dev' 
+    repositoryName = repositoryName + 'dev-feature'
+
+  } else if (branch.contains('qa-feature')) {
+    repositoryName = repositoryName + 'qa-feature'
+    environment = 'qa' 
+
+  } else if (branch == 'master') {
+    environment = 'prod' 
+  }
+
+  properties([
+      parameters([
+        booleanParam(defaultValue: false,
+          description: 'Click this if you would like to deploy to latest',
+          name: 'PUSH_LATEST'
+          )])])
+
   def slavePodTemplate = """
       metadata:
         labels:
@@ -72,10 +91,11 @@
               path: /var/run/docker.sock
     """
   podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate) {
-      node(klabel) {
+      node(k8slabel) {
+        container('fuchicorptools') {
           stage("Pulling the code") {
-            sh "echo ${repositoryName}"
-            sh "echo ${deployJobName}"
+            checkout scm
+            gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
         }
       }
     }
