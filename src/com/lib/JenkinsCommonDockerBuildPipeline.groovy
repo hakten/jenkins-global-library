@@ -126,14 +126,14 @@
             }
           }
 
-          stage("Trigger Deploy") {
-              build job: "${deployJobName}/master", 
-              parameters: [
-                  [$class: 'BooleanParameterValue', name: 'terraform_apply', value: true],
-                  [$class: 'StringParameterValue', name: 'selectedDockerImage', value: "${repositoryName}:${gitCommitHash}"], 
-                  [$class: 'StringParameterValue', name: 'environment', value: "${environment}"]
-                  ]
-           }
+          // stage("Trigger Deploy") {
+          //     build job: "${deployJobName}/master", 
+          //     parameters: [
+          //         [$class: 'BooleanParameterValue', name: 'terraform_apply', value: true],
+          //         [$class: 'StringParameterValue', name: 'selectedDockerImage', value: "${repositoryName}:${gitCommitHash}"], 
+          //         [$class: 'StringParameterValue', name: 'environment', value: "${environment}"]
+          //         ]
+          //  }
         }
     }
   }
