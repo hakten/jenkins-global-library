@@ -13,3 +13,4 @@ def runPipeline() {
   def deployJobName = "${JOB_NAME}"
       .split('/')[0]
       .replace('-build', '-deploy')
+}
