@@ -94,12 +94,13 @@
   podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate) {
       node(k8slabel) {
         container('fuchicorptools') {
+
           stage("Pulling the code") {
             checkout scm
             }
+
           stage('Build docker image') {
             dir("${WORKSPACE}/deployments/docker") {
-              // Build the docker image
               dockerImage = docker.build(repositoryName)
             }
           }
@@ -116,6 +117,7 @@
             dockerImage.push("latest")
             }
           }
+
           stage("Clean up") {
             sh "docker rmi --no-prune docker.ggl.huseyinakten.net/${repositoryName}:${gitCommitHash}"
 
@@ -123,6 +125,15 @@
             sh "docker rmi --no-prune docker.ggl.huseyinakten.net/${repositoryName}:latest"
             }
           }
+
+          stage("Trigger Deploy") {
+              build job: "${deployJobName}/master", 
+              parameters: [
+                  [$class: 'BooleanParameterValue', name: 'terraform_apply', value: true],
+                  [$class: 'StringParameterValue', name: 'selectedDockerImage', value: "${repositoryName}:${gitCommitHash}"], 
+                  [$class: 'StringParameterValue', name: 'environment', value: "${environment}"]
+                  ]
+           }
         }
     }
   }
