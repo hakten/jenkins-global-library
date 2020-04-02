@@ -122,8 +122,7 @@
             sh "docker rmi --no-prune docker.fuchicorp.com/${repositoryName}:latest"
             }
           }
-
-
+        }
     }
   }
 }
