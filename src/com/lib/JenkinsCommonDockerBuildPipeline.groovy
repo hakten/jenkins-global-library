@@ -101,7 +101,7 @@
             dir("${WORKSPACE}/deployments/docker") {
               // Build the docker image
               dockerImage = docker.build(repositoryName, "--build-arg branch_name=${branch} .")
-              dockerImageSec = docker.build(repositoryName .)
+              dockerImageSec = docker.build(repositoryName)
               sh "docker images"
             }
           }
