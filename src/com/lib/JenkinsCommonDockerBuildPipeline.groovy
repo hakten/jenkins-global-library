@@ -97,6 +97,13 @@
             checkout scm
             gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
         }
+          stage('Build docker image') {
+            dir("${WORKSPACE}/deployments/docker") {
+              // Build the docker image
+              dockerImage = docker.build(repositoryName, "--build-arg branch_name=${branch} .")
+              dockerImageSec = docker.build(repositoryName .)
+            }
+          }
       }
     }
   }
