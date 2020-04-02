@@ -19,7 +19,7 @@
       .split('/')[0]
       .replace('-build', '-deploy')
 
-  podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate) {
+  podTemplate(name: k8slabel, label: k8slabel) {
       node(k8slabel) {
           stage("Pulling the code") {
             sh "echo ${repositoryName}"
