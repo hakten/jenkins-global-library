@@ -112,10 +112,11 @@
             docker.withRegistry('https://docker.ggl.huseyinakten.net', 'nexus-docker-creds') {
             gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
             dockerImage.push("${gitCommitHash}") 
-            }
+            
             if (params.PUSH_LATEST) {
             dockerImage.push("latest")
             }
+           }
           }
 
           stage("Clean up") {
