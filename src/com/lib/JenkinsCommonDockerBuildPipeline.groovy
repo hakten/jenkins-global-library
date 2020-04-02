@@ -18,4 +18,14 @@
   def deployJobName = "${JOB_NAME}"
       .split('/')[0]
       .replace('-build', '-deploy')
+
+  sh "echo ${repositoryName}"
+  sh "echo ${deployJoName}"
+
+
+
+
+
+
+
 }
