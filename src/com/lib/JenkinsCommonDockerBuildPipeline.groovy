@@ -6,7 +6,6 @@
   def runPipeline() {
   // def common_docker = new JenkinsDeployerPipeline()
   def environment = ""
-  def gitCommitHash = ""
   def branch = "${scm.branches[0].name}".replaceAll(/^\*\//, '').replace("/", "-").toLowerCase()
   def k8slabel = "jenkins-pipeline-${UUID.randomUUID().toString()}"
   def repositoryName = "${JOB_NAME}"
@@ -21,10 +20,10 @@
 
   if (branch.contains('dev-feature')) {
     environment = 'dev' 
-    repositoryName = repositoryName + 'dev-feature'
+    repositoryName = repositoryName + '-' + 'dev-feature'
 
   } else if (branch.contains('qa-feature')) {
-    repositoryName = repositoryName + 'qa-feature'
+    repositoryName = repositoryName + '-' + 'qa-feature'
     environment = 'qa' 
 
   } else if (branch == 'master') {
@@ -37,7 +36,7 @@
           description: 'Click this if you would like to deploy to latest',
           name: 'PUSH_LATEST'
           )])])
-
+// 
   def slavePodTemplate = """
       metadata:
         labels:
@@ -90,22 +89,41 @@
             hostPath:
               path: /var/run/docker.sock
     """
+// 
   podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate) {
       node(k8slabel) {
         container('fuchicorptools') {
           stage("Pulling the code") {
             checkout scm
-            gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-        }
+          }
           stage('Build docker image') {
             dir("${WORKSPACE}/deployments/docker") {
               // Build the docker image
-              dockerImage = docker.build(repositoryName, "--build-arg branch_name=${branch} .")
-              dockerImageSec = docker.build(repositoryName)
-              sh "docker images"
+              dockerImage = docker.build(repositoryName)
             }
           }
-      }
+
+          stage("Push the Image") {
+            withCredentials([usernamePassword(credentialsId: 'nexus-docker-creds', passwordVariable: 'password', usernameVariable: 'username')]) {
+            sh "docker login --username ${username} --password ${password} https://docker.ggl.huseyinakten.net"
+           }
+            docker.withRegistry('https://docker.fuchicorp.com', 'nexus-docker-creds') {
+            def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+            dockerImage.push("${gitCommitHash}") 
+            }
+            if (params.PUSH_LATEST) {
+            dockerImage.push("latest")
+            }
+          }
+          stage("Clean up") {
+            sh "docker rmi --no-prune docker.fuchicorp.com/${repositoryName}:${gitCommitHash}"
+
+            if (params.PUSH_LATEST) {
+            sh "docker rmi --no-prune docker.fuchicorp.com/${repositoryName}:latest"
+            }
+          }
+
+
     }
   }
 }

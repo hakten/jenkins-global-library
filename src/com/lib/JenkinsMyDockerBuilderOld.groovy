@@ -90,6 +90,7 @@
             withCredentials([usernamePassword(credentialsId: 'nexus-docker-creds', passwordVariable: 'password', usernameVariable: 'username')]) {
             sh "docker login --username ${username} --password ${password} https://docker.gcp.huseyinakten.net"
            }
+          } 
 
             // docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
             // dockerImage.push("5")
@@ -115,9 +116,7 @@
                   currentBuild.result = 'FAILURE'
               }
             }
-          } 
- 
+        } 
       }
     }
-  }
 
