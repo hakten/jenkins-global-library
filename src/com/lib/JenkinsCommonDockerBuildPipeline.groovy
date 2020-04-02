@@ -1,4 +1,9 @@
-def runPipeline() {
+#!/usr/bin/env groovy
+package com.lib
+// import groovy.json.JsonSlurper
+// import hudson.FilePath
+
+  def runPipeline() {
   def common_docker = new JenkinsDeployerPipeline()
   def environment = ""
   def gitCommitHash = ""
