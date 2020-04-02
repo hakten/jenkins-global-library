@@ -95,7 +95,7 @@
         container('fuchicorptools') {
           stage("Pulling the code") {
             checkout scm
-          }
+            }
           stage('Build docker image') {
             dir("${WORKSPACE}/deployments/docker") {
               // Build the docker image
