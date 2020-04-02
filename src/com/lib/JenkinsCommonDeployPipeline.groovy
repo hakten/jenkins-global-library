@@ -158,8 +158,8 @@ def runPipeline() {
             deployment_tfvars += """
               deployment_name        = \"${deploymentName}\"
               deployment_environment = \"${environment}\"
-              deployment_image       = \"docker.fuchicorp.com/${selectedDockerImage}\"
-              credentials            = \"./fuchicorp-service-account.json\"
+              deployment_image       = \"docker.ggl.huseyinakten.net/${selectedDockerImage}\"
+              credentials            = \"./common-service-account.json\"
             """.stripIndent()
 
             writeFile(

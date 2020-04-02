@@ -127,16 +127,18 @@
           }
 
           stage("Trigger Deploy") {
-            if (environment.prod) {
               build job: "${deployJobName}/master", 
               parameters: [
                   [$class: 'BooleanParameterValue', name: 'terraform_apply', value: true],
                   [$class: 'StringParameterValue', name: 'selectedDockerImage', value: "${repositoryName}:${gitCommitHash}"], 
                   [$class: 'StringParameterValue', name: 'environment', value: "${environment}"]
                   ]
-            }
            }
         }
     }
   }
 }
+
+
+//fuchicorp remove
+//everyting triggers master
