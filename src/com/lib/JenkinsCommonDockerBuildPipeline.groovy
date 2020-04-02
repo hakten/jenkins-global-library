@@ -5,6 +5,7 @@
 
   def runPipeline() {
   // def common_docker = new JenkinsDeployerPipeline()
+  def gitCommitHash = ""
   def environment = ""
   def branch = "${scm.branches[0].name}".replaceAll(/^\*\//, '').replace("/", "-").toLowerCase()
   def k8slabel = "jenkins-pipeline-${UUID.randomUUID().toString()}"
@@ -108,7 +109,7 @@
             sh "docker login --username ${username} --password ${password} https://docker.ggl.huseyinakten.net"
            }
             docker.withRegistry('https://docker.ggl.huseyinakten.net', 'nexus-docker-creds') {
-            def gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+            gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
             dockerImage.push("${gitCommitHash}") 
             }
             if (params.PUSH_LATEST) {
