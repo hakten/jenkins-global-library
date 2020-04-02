@@ -267,15 +267,15 @@ def runPipeline() {
   }
 }
 
-// Function to get user id 
-@NonCPS
-def getBuildUser() {
-      try {
-        return currentBuild.rawBuild.getCause(Cause.UserIdCause).getUserId()
-      } catch (e) {
-        def user = "AutoTrigger"
-        return user
-      }
-  }
+// // Function to get user id 
+// @NonCPS
+// def getBuildUser() {
+//       try {
+//         return currentBuild.rawBuild.getCause(Cause.UserIdCause).getUserId()
+//       } catch (e) {
+//         def user = "AutoTrigger"
+//         return user
+//       }
+//   }
 
-return this
+// return this
