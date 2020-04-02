@@ -134,8 +134,6 @@
                   [$class: 'StringParameterValue', name: 'selectedDockerImage', value: "${repositoryName}:${gitCommitHash}"], 
                   [$class: 'StringParameterValue', name: 'environment', value: "${environment}"]
                   ]
-              else
-              sh "No deployment will be triggered"
             }
            }
         }
