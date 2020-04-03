@@ -4,7 +4,6 @@
 // import hudson.FilePath
 
   def runPipeline() {
-  // def common_docker = new JenkinsDeployerPipeline()
   def gitCommitHash = ""
   def environment = ""
   def branch = "${scm.branches[0].name}".replaceAll(/^\*\//, '').replace("/", "-").toLowerCase()
@@ -36,8 +35,8 @@
         booleanParam(defaultValue: false,
           description: 'Click this if you would like to deploy to latest',
           name: 'PUSH_LATEST'
-          )])])
-// 
+  )])])
+
   def slavePodTemplate = """
       metadata:
         labels:
@@ -90,7 +89,7 @@
             hostPath:
               path: /var/run/docker.sock
     """
-// 
+
   podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate) {
       node(k8slabel) {
         container('fuchicorptools') {
