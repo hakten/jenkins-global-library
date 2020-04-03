@@ -10,8 +10,8 @@
   def branch = "${scm.branches[0].name}".replaceAll(/^\*\//, '').replace("/", "-").toLowerCase()
   def k8slabel = "jenkins-pipeline-${UUID.randomUUID().toString()}"
   def repositoryName = "${JOB_NAME}"
-      .split('/')[0]
-      .replace('-fuchicorp', '')
+      .split('-')[0]
+	    .split('/')[0]
       .replace('-build', '')
       .replace('-deploy', '')
 
