@@ -5,7 +5,6 @@ import static groovy.json.JsonOutput.*
 import hudson.FilePath
 
 
-
 def runPipeline() {
   def common_docker = new JenkinsDeployerPipeline()
   def branch = "${scm.branches[0].name}".replaceAll(/^\*\//, '').replace("/", "-").toLowerCase()
@@ -26,14 +25,19 @@ def runPipeline() {
         nexusData.items.each { if (it.name.contains(branchName)) { versionList.add(it.name + ":" + it.version) } }
         }
         if (nexusData.continuationToken == null ) { break } }
-    if(!versionList) { versionList.add("ImmageNotFound") } 
-    return versionList.reverse(true) }
-    findDockerImages('%s')
+      if(!versionList) { versionList.add("ImmageNotFound") } 
+      return versionList.reverse(true) }
+      findDockerImages('%s')
   '''
-  def deploymentName = "${JOB_NAME}".split('/')[0].replace('-fuchicorp', '').replace('-build', '').replace('-deploy', '')
+  
 
-  try {
-    // Trying to build the job
+  def deploymentName = "${JOB_NAME}"
+    .split('/')[0]
+    .replace('-fuchicorp', '')
+    .replace('-build', '')
+    .replace('-deploy', '')
+
+  
     properties([ parameters([
 
       // Boolean Paramater for terraform apply or not 
@@ -70,10 +74,10 @@ def runPipeline() {
       name: 'debugMode')
 
       ]
-      )])
+    )])
 
-      // Jenkins slave to build this job 
-      def slavePodTemplate = """
+
+    def slavePodTemplate = """
       metadata:
         labels:
           k8s-label: ${k8slabel}
@@ -126,6 +130,7 @@ def runPipeline() {
               path: /var/run/docker.sock
     """
 
+
   podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate, showRawYaml: params.debugMode) {
       node(k8slabel) {
 
@@ -149,32 +154,21 @@ def runPipeline() {
           stage('Generate Configurations') {
             sh """
               mkdir -p ${WORKSPACE}/deployments/terraform/
-              cat  /etc/secrets/service-account/credentials.json > ${WORKSPACE}/deployments/terraform/fuchicorp-service-account.json
+              cat  /etc/secrets/service-account/credentials.json > ${WORKSPACE}/deployments/terraform/common-service-account.json
               ls ${WORKSPACE}/deployments/terraform/
-              ## This script should move to docker container to set up ~/.kube/config
-              sh /scripts/Dockerfile/set-config.sh
             """
-            // sh /scripts/Dockerfile/set-config.sh Should go to Docker container CMD so we do not have to call on slave 
+ 
             deployment_tfvars += """
               deployment_name        = \"${deploymentName}\"
               deployment_environment = \"${environment}\"
-              deployment_image       = \"docker.fuchicorp.com/${selectedDockerImage}\"
-              credentials            = \"./fuchicorp-service-account.json\"
+              deployment_image       = \"docker.ggl.huseyinakten.net/${selectedDockerImage}\"
+              credentials            = \"./common-service-account.json\"
             """.stripIndent()
 
             writeFile(
               [file: "${WORKSPACE}/deployments/terraform/deployment_configuration.tfvars", text: "${deployment_tfvars}"]
               )
-
-            if (params.debugMode) {
-              sh """
-                echo #############################################################
-                cat ${WORKSPACE}/deployments/terraform/deployment_configuration.tfvars
-                echo #############################################################
-              """
-            }
             
-            try {
                 withCredentials([
                     file(credentialsId: "${deploymentName}-config", variable: 'default_config')
                 ]) {
@@ -183,19 +177,9 @@ def runPipeline() {
                       cat \$default_config >> ${WORKSPACE}/deployments/terraform/deployment_configuration.tfvars
                       
                     """
-                    if (params.debugMode) {
-                      sh """
-                        echo #############################################################
-                        cat ${WORKSPACE}/deployments/terraform/deployment_configuration.tfvars
-                        echo #############################################################
-                      """
-                    }
                 }
             
                 println("Found default configurations appanded to main configuration")
-            } catch (e) {
-                println("Default configurations not founds. Skiping!!")
-            }
               
           }
           stage('Terraform Apply/Plan') {
@@ -258,23 +242,5 @@ def runPipeline() {
         }
        }
       }
-    }
-  } catch (e) {
-    currentBuild.result = 'FAILURE'
-    println("ERROR Detected:")
-    println(e.getMessage())
   }
 }
-
-// Function to get user id 
-@NonCPS
-def getBuildUser() {
-      try {
-        return currentBuild.rawBuild.getCause(Cause.UserIdCause).getUserId()
-      } catch (e) {
-        def user = "AutoTrigger"
-        return user
-      }
-  }
-
-return this

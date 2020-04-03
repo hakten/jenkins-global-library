@@ -19,12 +19,12 @@
       .split('/')[0]
       .replace('-build', '-deploy')
 
-  if (branch.contains('dev-feature')) {
+  if (branch.contains('dev')) {
     environment = 'dev' 
-    repositoryName = repositoryName + '-' + 'dev-feature'
+    repositoryName = repositoryName + '-' + 'dev'
 
-  } else if (branch.contains('qa-feature')) {
-    repositoryName = repositoryName + '-' + 'qa-feature'
+  } else if (branch.contains('qa')) {
+    repositoryName = repositoryName + '-' + 'qa'
     environment = 'qa' 
 
   } else if (branch == 'master') {
