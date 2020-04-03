@@ -131,7 +131,7 @@ def runPipeline() {
     """
 
 
-  podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate, showRawYaml: params.debugMode) {
+  podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate) {
       node(k8slabel) {
 
         stage("Deployment Info") {
