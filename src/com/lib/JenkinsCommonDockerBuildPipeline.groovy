@@ -88,7 +88,7 @@
           - name: docker-sock
             hostPath:
               path: /var/run/docker.sock
-    """
+  """
 
   podTemplate(name: k8slabel, label: k8slabel, yaml: slavePodTemplate) {
       node(k8slabel) {
@@ -106,9 +106,9 @@
 
           stage("Push the Image") {
             withCredentials([usernamePassword(credentialsId: 'nexus-docker-creds', passwordVariable: 'password', usernameVariable: 'username')]) {
-            sh "docker login --username ${username} --password ${password} https://docker.ggl.huseyinakten.net"
+            sh "docker login --username ${username} --password ${password} https://nexus.ggl.huseyinakten.net"
            }
-            docker.withRegistry('https://docker.ggl.huseyinakten.net', 'nexus-docker-creds') {
+            docker.withRegistry('https://nexus.ggl.huseyinakten.net', 'nexus-docker-creds') {
             gitCommitHash = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
             dockerImage.push("${gitCommitHash}") 
             
@@ -119,10 +119,10 @@
           }
 
           stage("Clean up") {
-            sh "docker rmi --no-prune docker.ggl.huseyinakten.net/${repositoryName}:${gitCommitHash}"
+            sh "docker rmi --no-prune nexus.ggl.huseyinakten.net/${repositoryName}:${gitCommitHash}"
 
             if (params.PUSH_LATEST) {
-            sh "docker rmi --no-prune docker.ggl.huseyinakten.net/${repositoryName}:latest"
+            sh "docker rmi --no-prune nexus.ggl.huseyinakten.net/${repositoryName}:latest"
             }
           }
 

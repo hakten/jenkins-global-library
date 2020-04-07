@@ -2,20 +2,27 @@
   def k8slabel = "jenkins-pipeline-${UUID.randomUUID().toString()}"
   def repositoryName = "${JOB_NAME}"
       .split('/')[0]
+      .replace('-fuchicorp', '')
       .replace('-build', '')
       .replace('-deploy', '')
 
     properties([
       parameters([
-        booleanParam(defaultValue: true,
-          description: 'Click this if you would like to deploy to latest',
-          name: 'LATEST'),
+        string(defaultValue: 'https://registry.hub.docker.com', 
+            description: 'Please enter docker registry address.', 
+            name: 'DOCKER_URL', trim: false),
         string(defaultValue: '', 
-            description: 'Please enter application version number.', 
-            name: 'VERSION', trim: false)
-          ])])
+            description: 'Enter docker repository name as in fuchicorp/artemis or artemis format.', 
+            name: 'REPO_NAME', trim: false),
+        string(defaultValue: '', 
+            description: 'Enter application version number.', 
+            name: 'VERSION', trim: false),
+        booleanParam(defaultValue: true,
+            description: 'Click this if you would like to build latest version.',
+            name: 'LATEST')
+            ])])
 
-      def slavePodTemplate = """
+    def slavePodTemplate = """
       metadata:
         labels:
           k8s-label: ${k8slabel}
@@ -90,16 +97,10 @@
             withCredentials([usernamePassword(credentialsId: 'nexus-docker-creds', passwordVariable: 'password', usernameVariable: 'username')]) {
             sh "docker login --username ${username} --password ${password} https://docker.gcp.huseyinakten.net"
            }
-          } 
-
-            // docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
-            // dockerImage.push("5")
 
             if ( params.LATEST ) {
-                if ( !params.VERSION) {
                         docker.withRegistry('https://docker.gcp.huseyinakten.net', 'nexus-docker-creds') {
                         dockerImage.push("latest")
-              }
             }
           }    
             if ( !params.LATEST ) {
@@ -109,14 +110,15 @@
               }
             }
           }  
-          if ( params.LATEST ) {
-              if ( params.VERSION) {
-                  sh "echo Please choose only one option 'latest' or enter a version number."
+          if ( !params.LATEST ) {
+              if ( !params.VERSION) {
+                  sh "echo Please choose 'latest' or enter a version number."
                   currentStage.result = 'FAILURE'
                   currentBuild.result = 'FAILURE'
               }
             }
-        } 
-      }
-    }
+         }
+    } 
+  }
+}
 
